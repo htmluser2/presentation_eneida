@@ -82,16 +82,24 @@
   }
   document.querySelectorAll('.odo[data-target]').forEach(buildOdometer);
 
-  const languageRange = document.getElementById('languageRange');
-  const languageColumns = document.querySelectorAll('#s4 .lang-col');
-  function updateLanguageBalance(){
-    const oldWidth = languageRange.value;
-    languageColumns[0].style.flexBasis = oldWidth + '%';
-    languageColumns[1].style.flexBasis = (100 - oldWidth) + '%';
+  const compare = document.getElementById('compare');
+  const newPane = document.getElementById('newPane');
+  const handle = document.getElementById('handle');
+  let dragging = false;
+  function setSplit(clientX){
+    const rect = compare.getBoundingClientRect();
+    let percent = ((clientX - rect.left) / rect.width) * 100;
+    percent = Math.max(6, Math.min(94, percent));
+    newPane.style.clipPath = `inset(0 0 0 ${percent}%)`;
+    handle.style.left = percent + '%';
   }
-  if (languageRange){
-    languageRange.addEventListener('input', updateLanguageBalance);
-    updateLanguageBalance();
+  if (compare){
+    compare.addEventListener('mousedown', e => { dragging = true; setSplit(e.clientX); });
+    window.addEventListener('mousemove', e => { if (dragging) setSplit(e.clientX); });
+    window.addEventListener('mouseup', () => { dragging = false; });
+    compare.addEventListener('touchstart', e => { dragging = true; setSplit(e.touches[0].clientX); }, {passive:true});
+    compare.addEventListener('touchmove', e => { if (dragging) setSplit(e.touches[0].clientX); }, {passive:true});
+    compare.addEventListener('touchend', () => { dragging = false; });
   }
 
   function playSig(){

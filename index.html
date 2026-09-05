@@ -113,21 +113,16 @@
   .plot-box b{color:var(--gold-soft);}
 
   /* ---------- language comparison ---------- */
-  .lang-split{display:flex; gap:0; margin-top:1.7rem; border-radius:10px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.18);}
-  .lang-col{padding:2rem 2.1rem; min-width:0; transition:flex-basis .25s ease;}
-  .lang-col.old{background:var(--paper); color:var(--ink);}
-  .lang-col.new{background:var(--cherry); color:var(--cream);}
-  .lang-col h3{margin:0 0 1.1rem 0; font-size:1.15rem;}
-  .lang-col ul{margin:0; padding-left:1.1rem;}
-  .lang-col li{margin-bottom:.85rem; font-size:.95rem; line-height:1.5;
-    opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease;}
-  .slide.active .lang-col li{opacity:1; transform:translateY(0);}
-  .lang-col li:nth-child(1){transition-delay:.05s;}
-  .lang-col li:nth-child(2){transition-delay:.15s;}
-  .lang-col li:nth-child(3){transition-delay:.25s;}
-  .language-control{display:flex;align-items:center;gap:1rem;margin-top:1.1rem;color:var(--muted);font-size:.82rem;font-weight:700;}
-  .language-control span:last-child{color:var(--cherry);}
-  .language-range{flex:1;accent-color:var(--cherry);cursor:ew-resize;}
+  .compare{position:relative; margin-top:1.8rem; height:340px; border-radius:10px; overflow:hidden; cursor:ew-resize; user-select:none; box-shadow:0 20px 50px rgba(0,0,0,.25);}
+  .compare-pane{position:absolute; inset:0; padding:2rem 2.2rem; display:flex; flex-direction:column; justify-content:center;}
+  .compare-pane.old{background:var(--paper); color:var(--ink);}
+  .compare-pane.new{background:var(--cherry); color:var(--cream); clip-path:inset(0 0 0 50%); padding-left:56%;}
+  .compare-pane h3{margin:0 0 1rem 0; font-size:1.15rem;}
+  .compare-pane ul{margin:0; padding-left:1.1rem;}
+  .compare-pane li{margin-bottom:.7rem; font-size:.93rem; line-height:1.5;}
+  .compare-handle{position:absolute; top:0; bottom:0; left:50%; width:3px; background:var(--gold); transform:translateX(-50%);}
+  .compare-handle .knob{position:absolute; top:50%; left:50%; width:46px; height:46px; border-radius:50%; background:var(--gold); transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:800; box-shadow:0 6px 20px rgba(0,0,0,.3);}
+  .compare-hint{margin-top:.8rem; font-size:.82rem; color:var(--muted); text-align:center;}
 
   /* ---------- style & spirit: full info, no tabs ---------- */
   .spirit-grid{display:grid; grid-template-columns:1.15fr .85fr; gap:2.2rem; margin-top:1.7rem;}
@@ -270,8 +265,8 @@
     <div class="slide-inner">
       <p class="eyebrow on-cream">Головна революція</p>
       <h2 class="reveal" style="font-size:2.3rem;margin:0;">Мова твору</h2>
-      <div class="lang-split">
-        <div class="lang-col old">
+      <div class="compare" id="compare">
+        <div class="compare-pane old">
           <h3>До «Енеїди»</h3>
           <ul>
             <li>Книжна, «висока» мова, близька до церковнослов'янської</li>
@@ -279,7 +274,7 @@
             <li>Народна мова вважалася «непридатною» для серйозних творів</li>
           </ul>
         </div>
-        <div class="lang-col new">
+        <div class="compare-pane new" id="newPane">
           <h3>«Енеїда»</h3>
           <ul>
             <li>Уперше написана живою, розмовною українською мовою народу</li>
@@ -288,12 +283,9 @@
             <li>Поєднала розмовну лексику, прислів'я, приказки, фразеологізми та назви українських страв і одягу</li>
           </ul>
         </div>
+        <div class="compare-handle" id="handle"><div class="knob">↔</div></div>
       </div>
-      <label class="language-control" for="languageRange">
-        <span>Білий текст</span>
-        <input class="language-range" id="languageRange" type="range" min="25" max="75" value="50" aria-label="Пересунути межу між світлим і червоним текстом">
-        <span>Червоний текст</span>
-      </label>
+      <p class="compare-hint">Потягни повзунок, щоб порівняти мову «до» і «після»</p>
     </div>
   </section>
 
