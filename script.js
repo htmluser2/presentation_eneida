@@ -82,6 +82,18 @@
   }
   document.querySelectorAll('.odo[data-target]').forEach(buildOdometer);
 
+  const languageRange = document.getElementById('languageRange');
+  const languageColumns = document.querySelectorAll('#s4 .lang-col');
+  function updateLanguageBalance(){
+    const oldWidth = languageRange.value;
+    languageColumns[0].style.flexBasis = oldWidth + '%';
+    languageColumns[1].style.flexBasis = (100 - oldWidth) + '%';
+  }
+  if (languageRange){
+    languageRange.addEventListener('input', updateLanguageBalance);
+    updateLanguageBalance();
+  }
+
   function playSig(){
     document.querySelectorAll('#sigFlow .sig-item').forEach((el,i) => {
       el.classList.remove('in');

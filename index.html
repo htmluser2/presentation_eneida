@@ -113,8 +113,8 @@
   .plot-box b{color:var(--gold-soft);}
 
   /* ---------- language comparison ---------- */
-  .lang-split{display:grid; grid-template-columns:1fr 1fr; gap:0; margin-top:1.7rem; border-radius:10px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.18);}
-  .lang-col{padding:2rem 2.1rem;}
+  .lang-split{display:flex; gap:0; margin-top:1.7rem; border-radius:10px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.18);}
+  .lang-col{padding:2rem 2.1rem; min-width:0; transition:flex-basis .25s ease;}
   .lang-col.old{background:var(--paper); color:var(--ink);}
   .lang-col.new{background:var(--cherry); color:var(--cream);}
   .lang-col h3{margin:0 0 1.1rem 0; font-size:1.15rem;}
@@ -125,6 +125,9 @@
   .lang-col li:nth-child(1){transition-delay:.05s;}
   .lang-col li:nth-child(2){transition-delay:.15s;}
   .lang-col li:nth-child(3){transition-delay:.25s;}
+  .language-control{display:flex;align-items:center;gap:1rem;margin-top:1.1rem;color:var(--muted);font-size:.82rem;font-weight:700;}
+  .language-control span:last-child{color:var(--cherry);}
+  .language-range{flex:1;accent-color:var(--cherry);cursor:ew-resize;}
 
   /* ---------- style & spirit: full info, no tabs ---------- */
   .spirit-grid{display:grid; grid-template-columns:1.15fr .85fr; gap:2.2rem; margin-top:1.7rem;}
@@ -164,7 +167,7 @@
   /* ---------- thanks ---------- */
   #s8 h1{font-size:clamp(2.6rem,5.6vw,4rem); color:var(--cream); margin:0 0 .8rem 0;}
   #s8 .thanks-sub{color:#C9CEE8; font-style:italic; font-family:'Fraunces',serif; font-size:1.1rem;}
-  #s8 .author-badge{margin-top:2.6rem; display:inline-block; padding:.75rem 1.5rem; border:1px solid rgba(255,255,255,.3); border-radius:100px; color:var(--cream); font-size:.9rem; font-weight:600;}
+  #s9 .author-badge{margin-top:2.6rem; display:inline-block; padding:.75rem 1.5rem; border:1px solid rgba(255,255,255,.3); border-radius:100px; color:#fff; font-size:.9rem; font-weight:600;}
 
   /* ---------- nav chrome ---------- */
   .progress{position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--gold),var(--gold-soft)); width:0%; z-index:50; transition:width .6s cubic-bezier(.6,0,.3,1);}
@@ -286,6 +289,11 @@
           </ul>
         </div>
       </div>
+      <label class="language-control" for="languageRange">
+        <span>Білий текст</span>
+        <input class="language-range" id="languageRange" type="range" min="25" max="75" value="50" aria-label="Пересунути межу між світлим і червоним текстом">
+        <span>Червоний текст</span>
+      </label>
     </div>
   </section>
 
