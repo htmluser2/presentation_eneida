@@ -84,6 +84,8 @@
 
   const compare = document.getElementById('compare');
   const newPane = document.getElementById('newPane');
+  const oldContent = document.getElementById('oldContent');
+  const newContent = document.getElementById('newContent');
   const handle = document.getElementById('handle');
   let dragging = false;
   let didDrag = false;
@@ -94,6 +96,8 @@
     compare.style.setProperty('--split', percent + '%');
     newPane.style.clipPath = `inset(0 0 0 ${percent}%)`;
     handle.style.left = percent + '%';
+    oldContent.style.display = percent < 50 ? 'flex' : 'none';
+    newContent.style.display = percent >= 50 ? 'flex' : 'none';
   }
   if (compare){
     compare.addEventListener('pointerdown', e => {
@@ -122,6 +126,8 @@
         didDrag = false;
       }
     });
+    const rect = compare.getBoundingClientRect();
+    setSplit(rect.left + rect.width * .5);
   }
 
   function playSig(){
