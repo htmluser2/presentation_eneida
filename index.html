@@ -123,6 +123,11 @@
   .compare-handle{position:absolute; top:0; bottom:0; left:50%; width:3px; background:var(--gold); transform:translateX(-50%);}
   .compare-handle .knob{position:absolute; top:50%; left:50%; width:46px; height:46px; border-radius:50%; background:var(--gold); transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:800; box-shadow:0 6px 20px rgba(0,0,0,.3);}
   .compare-hint{margin-top:.8rem; font-size:.82rem; color:var(--muted); text-align:center;}
+  .compare-facts{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;}
+  .compare-fact{padding:1rem 1.2rem;border-radius:8px;font-size:.88rem;line-height:1.45;}
+  .compare-fact.old{background:var(--paper);color:var(--ink);border-top:3px solid var(--muted);}
+  .compare-fact.new{background:var(--cherry);color:var(--cream);border-top:3px solid var(--gold);}
+  .compare-fact strong{display:block;margin-bottom:.3rem;font-family:'Fraunces',serif;font-size:1rem;}
 
   /* ---------- style & spirit: full info, no tabs ---------- */
   .spirit-grid{display:grid; grid-template-columns:1.15fr .85fr; gap:2.2rem; margin-top:1.7rem;}
@@ -187,6 +192,8 @@
     .compare-pane h3{font-size:1rem;}
     .compare-pane li{font-size:.82rem;line-height:1.35;margin-bottom:.5rem;}
     .compare-handle .knob{width:38px;height:38px;font-size:.85rem;}
+    .compare-facts{grid-template-columns:1fr;gap:.65rem;margin-top:.7rem;}
+    .compare-fact{padding:.75rem 1rem;font-size:.8rem;}
     #cursor{display:none;}
     body{cursor:auto;}
   }
@@ -274,19 +281,17 @@
       <div class="compare" id="compare">
         <div class="compare-pane old">
           <h3>До «Енеїди»</h3>
-          <ul>
-            <li><b>Факт:</b> до Котляревського серйозні твори часто писали книжною мовою, далекою від щоденного мовлення українців.</li>
-          </ul>
         </div>
         <div class="compare-pane new" id="newPane">
           <h3>«Енеїда»</h3>
-          <ul>
-            <li><b>Факт:</b> «Енеїда» довела, що живою українською можна створити велику поему, передати гумор, побут і характер народу.</li>
-          </ul>
         </div>
         <div class="compare-handle" id="handle"><div class="knob">↔</div></div>
       </div>
       <p class="compare-hint">Потягни повзунок, щоб порівняти мову «до» і «після»</p>
+      <div class="compare-facts">
+        <div class="compare-fact old"><strong>До «Енеїди»</strong>Серйозні твори часто писали книжною мовою, далекою від щоденного мовлення українців.</div>
+        <div class="compare-fact new"><strong>«Енеїда»</strong>Довела, що живою українською можна створити велику поему, передати гумор, побут і характер народу.</div>
+      </div>
     </div>
   </section>
 

@@ -90,7 +90,7 @@
   function setSplit(clientX){
     const rect = compare.getBoundingClientRect();
     let percent = ((clientX - rect.left) / rect.width) * 100;
-    percent = Math.max(35, Math.min(65, percent));
+    percent = Math.max(10, Math.min(90, percent));
     compare.style.setProperty('--split', percent + '%');
     newPane.style.clipPath = `inset(0 0 0 ${percent}%)`;
     handle.style.left = percent + '%';
