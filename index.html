@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>«Енеїда» Івана Котляревського</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style media="not all">
+  :root{
+    --cherry:#8C1220; --cherry-deep:#5C0B15; --cherry-bright:#C21B31;
+    --navy:#232B5C; --navy-deep:#161B3E;
+    --gold:#D4A445; --gold-soft:#E8C87A;
+    --cream:#FBF3EA; --paper:#F2E3D4; --ink:#241C18; --muted:#8A7A70;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--ink);}
+  body{font-family:'Manrope',sans-serif;color:var(--ink);}
+  h1,h2,h3,.serif{font-family:'Fraunces',serif;}
+  @media (pointer:fine){ body{cursor:none;} }
+
+  /* ---------- custom cursor ---------- */
+  #cursor{position:fixed;top:0;left:0;width:16px;height:16px;border-radius:50%;
+    border:1.5px solid var(--gold-soft); transform:translate(-50%,-50%);
+    pointer-events:none; z-index:9999; transition:width .25s,height .25s,background .25s,border-color .25s;
+    mix-blend-mode:difference;}
+  #cursor.grow{width:46px;height:46px;background:rgba(212,164,69,.25);}
+
+  /* ---------- ambient particle canvas ---------- */
+  #fx{position:fixed;inset:0;z-index:40;pointer-events:none;mix-blend-mode:screen;opacity:.55;}
+  #confetti{position:fixed;inset:0;z-index:41;pointer-events:none;}
+
+  /* ---------- cursor spotlight (wow layer) ---------- */
+  #spotlight{position:fixed;inset:0;z-index:42;pointer-events:none;
+    background:radial-gradient(520px circle at var(--mx,50%) var(--my,50%), rgba(255,224,168,.20), transparent 62%);
+    mix-blend-mode:overlay;}
+
+  .deck{position:relative;width:100vw;height:100vh;}
+
+  .slide{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    padding:6vh 8vw;
+    opacity:0; pointer-events:none;
+    transform: translateY(46px) scale(.97);
+    transition: transform .75s cubic-bezier(.19,1,.22,1), opacity .6s ease;
+  }
+  .slide.active{opacity:1; pointer-events:auto; transform:translateY(0) scale(1);}
+
+  .slide-inner{width:100%; max-width:1180px; height:100%; display:flex; flex-direction:column; justify-content:center; position:relative; z-index:2; transition:transform .25s ease-out;}
+
+  .bg-cherry{background:radial-gradient(130% 150% at 82% -15%, var(--cherry-deep), var(--cherry) 55%, var(--cherry-deep) 120%);}
+  .bg-cream{background:linear-gradient(160deg, var(--cream), var(--paper) 140%);}
+  .bg-navy{background:radial-gradient(140% 150% at 8% 115%, var(--navy-deep), var(--navy) 60%);}
+  .text-cream{color:var(--cream);}
+
+  .eyebrow{font-size:.82rem; color:var(--gold); font-weight:700; margin:0 0 .8rem 0; opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease;}
+  .eyebrow.on-cream{color:var(--cherry);}
+  .slide.active .eyebrow{opacity:1; transform:translateY(0);}
+
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease;}
+  .slide.active .reveal{opacity:1; transform:translateY(0);}
+
+  .underline-svg{display:block; margin:.5rem 0 1.6rem 0; height:10px;}
+  .underline-svg path{fill:none; stroke:var(--gold); stroke-width:3; stroke-linecap:round;}
+
+  /* kinetic hero title */
+  #s1 .kinetic{font-size:clamp(3rem,7.4vw,5.6rem); line-height:1; font-weight:900; margin:0; color:var(--cream); overflow:hidden;}
+  #s1 .kinetic .word{display:inline-block; overflow:hidden; vertical-align:top; margin-right:.28em;}
+  #s1 .kinetic .word span{display:inline-block; transform:translateY(115%); transition:transform .8s cubic-bezier(.2,.9,.25,1);}
+  #s1.active .kinetic .word span{transform:translateY(0);}
+  #s1 .grad{background:linear-gradient(90deg, var(--gold-soft), var(--cream) 40%, var(--gold-soft) 80%); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:shine 5s linear infinite;}
+  @keyframes shine{ to{ background-position:-200% center; } }
+  #s1 .subtitle{font-size:1.35rem; font-style:italic; color:#F1D3D6; max-width:36ch; margin:1.3rem 0 0 0; font-family:'Fraunces',serif;}
+  #s1 .meta{color:#DCAAAF; font-size:.92rem; margin-top:2.4rem;}
+  #s1 .scrollcue{position:absolute; bottom:6vh; left:8vw; display:flex; align-items:center; gap:.6rem; color:var(--gold-soft); font-size:.82rem; cursor:pointer; opacity:0; transition:opacity .6s ease 1s;}
+  #s1.active .scrollcue{opacity:1;}
+  #s1 .scrollcue .arrow{width:26px;height:26px;border-radius:50%;border:1px solid var(--gold-soft);display:flex;align-items:center;justify-content:center;animation:bob 1.6s ease-in-out infinite;}
+  @keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(5px);} }
+
+  /* ---------- author ---------- */
+  .author-wrap{display:grid; grid-template-columns:auto 1fr; gap:4.5rem; align-items:center;}
+  .medallion{width:160px;height:160px;position:relative;}
+  .medallion svg{width:100%;height:100%;transform:rotate(-90deg);}
+  .medallion circle{fill:none; stroke-width:3;}
+  .medallion .track{stroke:var(--paper);}
+  .medallion .prog{stroke:var(--gold); stroke-dasharray:440; stroke-dashoffset:440; transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1) .2s;}
+  .slide.active .medallion .prog{stroke-dashoffset:70;}
+  .medallion .core{position:absolute; inset:16px; border-radius:50%; background:var(--navy);}
+  .author-dates{font-family:'Fraunces',serif; font-weight:700; color:var(--cherry); font-size:1.15rem; margin-top:1rem;}
+
+  /* ---------- odometer (spinning digits) ---------- */
+  .odo{display:inline-flex; vertical-align:bottom;}
+  .odo-digit{display:inline-block; height:1em; overflow:hidden; position:relative; width:.62em; text-align:center;}
+  .odo-strip{display:block; will-change:transform;}
+  .odo-num{display:block; height:1em; line-height:1;}
+  .fact-list{list-style:none; margin:1.6rem 0 0 0; padding:0;}
+  .fact-list li{display:flex; gap:1rem; padding:.85rem 0; border-top:1px solid var(--paper); font-size:1.03rem; line-height:1.5;
+    opacity:0; transform:translateX(-14px); transition:opacity .5s ease, transform .5s ease;}
+  .slide.active .fact-list li{opacity:1; transform:translateX(0);}
+  .fact-list li::before{content:'—'; color:var(--cherry); font-weight:700; flex-shrink:0;}
+
+  /* ---------- what is eneida ---------- */
+  .feature-pair{display:grid; grid-template-columns:1fr 1fr; gap:1.6rem; margin-top:1.6rem;}
+  .tilt-card{background:var(--paper); border-radius:8px; padding:1.7rem 1.9rem; transform-style:preserve-3d; transition:transform .15s ease-out, box-shadow .3s;}
+  .tilt-card:hover{box-shadow:0 20px 40px rgba(140,18,32,.18);}
+  .tilt-card h3{margin:0 0 .5rem 0; font-size:1.2rem; color:var(--navy);}
+  .tilt-card p{margin:0; color:var(--muted); font-size:.95rem; line-height:1.5;}
+  .count{font-family:'Fraunces',serif; font-weight:900; font-size:2.6rem; color:var(--cherry);}
+  .plot-box{background:var(--navy); color:var(--cream); border-radius:8px; padding:1.7rem 2rem; margin-top:1.3rem; font-size:1.03rem; line-height:1.6;
+    clip-path:inset(0 100% 0 0); transition:clip-path .9s cubic-bezier(.65,0,.35,1) .15s;}
+  .slide.active .plot-box{clip-path:inset(0 0 0 0);}
+  .plot-box b{color:var(--gold-soft);}
+
+  /* ---------- language comparison ---------- */
+  .lang-split{display:grid; grid-template-columns:1fr 1fr; gap:0; margin-top:1.7rem; border-radius:10px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.18);}
+  .lang-col{padding:2rem 2.1rem;}
+  .lang-col.old{background:var(--paper); color:var(--ink);}
+  .lang-col.new{background:var(--cherry); color:var(--cream);}
+  .lang-col h3{margin:0 0 1.1rem 0; font-size:1.15rem;}
+  .lang-col ul{margin:0; padding-left:1.1rem;}
+  .lang-col li{margin-bottom:.85rem; font-size:.95rem; line-height:1.5;
+    opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease;}
+  .slide.active .lang-col li{opacity:1; transform:translateY(0);}
+  .lang-col li:nth-child(1){transition-delay:.05s;}
+  .lang-col li:nth-child(2){transition-delay:.15s;}
+  .lang-col li:nth-child(3){transition-delay:.25s;}
+
+  /* ---------- style & spirit: full info, no tabs ---------- */
+  .spirit-grid{display:grid; grid-template-columns:1.15fr .85fr; gap:2.2rem; margin-top:1.7rem;}
+  .spirit-col h3{color:var(--gold); font-size:1.02rem; margin:0 0 .9rem 0; font-weight:800;}
+  .humor-grid{display:grid; grid-template-columns:1fr 1fr; gap:1rem;}
+  .humor-card{background:rgba(255,255,255,.07); border-radius:8px; padding:1.3rem 1.4rem; border-top:3px solid var(--gold); transform-style:preserve-3d; transition:transform .15s ease-out, opacity .5s ease, translate .5s ease;
+    opacity:0; transform:translateY(14px);}
+  .slide.active .humor-card{opacity:1; transform:translateY(0);}
+  .humor-card:nth-child(1){transition-delay:.05s;}
+  .humor-card:nth-child(2){transition-delay:.15s;}
+  .humor-card:nth-child(3){transition-delay:.25s;}
+  .humor-card h4{color:var(--cream); font-size:1rem; margin:0 0 .4rem 0;}
+  .humor-card p{color:#C9CEE8; font-size:.85rem; line-height:1.45; margin:0;}
+  .chip-row{display:flex; flex-wrap:wrap; gap:.55rem;}
+  .chip{background:rgba(255,255,255,.1); color:var(--cream); padding:.48rem 1rem; border-radius:100px; font-size:.82rem; font-weight:600;
+    opacity:0; transform:scale(.7); transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);}
+  .slide.active .chip{opacity:1; transform:scale(1);}
+  .quote-strip{border-left:3px solid var(--gold-soft); padding-left:1.2rem; font-style:italic; color:var(--cream); font-size:1.02rem; margin-top:1.3rem; font-family:'Fraunces',serif;}
+
+  /* ---------- significance timeline ---------- */
+  .sig-flow{display:flex; margin-top:2.2rem;}
+  .sig-item{flex:1; position:relative; padding-right:1.3rem;}
+  .sig-num{width:42px;height:42px;border-radius:50%;background:var(--gold);color:var(--navy-deep);font-family:'Fraunces',serif;font-weight:800;font-size:1.1rem;display:flex;align-items:center;justify-content:center;margin-bottom:.9rem; transform:scale(0); transition:transform .5s cubic-bezier(.34,1.56,.64,1);}
+  .sig-item.in .sig-num{transform:scale(1);}
+  .sig-line{position:absolute; top:21px; left:42px; right:-1.3rem; height:2px; background:rgba(255,255,255,.15); overflow:hidden;}
+  .sig-line::after{content:'';position:absolute;inset:0;background:var(--gold);width:0%;transition:width .6s ease;}
+  .sig-item.in .sig-line::after{width:100%;}
+  .sig-item h3{color:var(--cream); font-size:1rem; margin:0 0 .5rem 0;}
+  .sig-item p{color:#F1D3D6; font-size:.85rem; line-height:1.45; margin:0; max-width:22ch;}
+
+  /* ---------- conclusion ---------- */
+  .pullquote{font-family:'Fraunces',serif; font-size:clamp(1.7rem,3.4vw,2.5rem); line-height:1.3; font-weight:700; max-width:23ch;}
+  .pullquote .accent{color:var(--cherry);}
+  .conclusion-notes{margin-top:2.2rem; display:flex; gap:2rem;}
+  .conclusion-notes div{flex:1; font-size:.92rem; color:var(--muted); line-height:1.5; border-top:2px solid var(--gold); padding-top:.9rem;}
+
+  /* ---------- thanks ---------- */
+  #s8 h1{font-size:clamp(2.6rem,5.6vw,4rem); color:var(--cream); margin:0 0 .8rem 0;}
+  #s8 .thanks-sub{color:#C9CEE8; font-style:italic; font-family:'Fraunces',serif; font-size:1.1rem;}
+  #s8 .author-badge{margin-top:2.6rem; display:inline-block; padding:.75rem 1.5rem; border:1px solid rgba(255,255,255,.3); border-radius:100px; color:var(--cream); font-size:.9rem; font-weight:600;}
+
+  /* ---------- nav chrome ---------- */
+  .progress{position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--gold),var(--gold-soft)); width:0%; z-index:50; transition:width .6s cubic-bezier(.6,0,.3,1);}
+  .dots{position:fixed; bottom:2.4vh; left:50%; transform:translateX(-50%); display:flex; gap:.5rem; z-index:50;}
+  .dot{width:7px; height:7px; border-radius:50%; background:rgba(150,140,130,.35); cursor:pointer; transition:background .25s,transform .25s;}
+  .dot.active{background:var(--gold); transform:scale(1.5);}
+  .navbtn{position:fixed; top:50%; transform:translateY(-50%); z-index:50; width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
+    background:rgba(150,140,130,.15); color:var(--gold-soft); font-size:1.2rem; display:flex; align-items:center; justify-content:center; transition:background .2s, transform .2s;}
+  .navbtn:hover{background:rgba(150,140,130,.3); transform:translateY(-50%) scale(1.1);}
+  #prevBtn{left:1.6vw;} #nextBtn{right:1.6vw;}
+  .counter{position:fixed; top:2.2vh; right:2vw; font-size:.8rem; color:rgba(200,190,180,.7); z-index:50; font-weight:700; letter-spacing:.03em;}
+
+  @media (max-width:780px){
+    .author-wrap,.feature-pair,.humor-grid,.sig-flow{grid-template-columns:1fr!important; display:flex!important; flex-direction:column;}
+    .sig-item{padding-right:0; margin-bottom:1.4rem;}
+    .sig-line{display:none;}
+    .conclusion-notes{flex-direction:column; gap:1rem;}
+    .navbtn{width:36px;height:36px;}
+    #cursor{display:none;}
+    body{cursor:auto;}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition-duration:.01ms !important; animation:none !important;} }
+</style>
+</head>
+<body>
+
+<canvas id="fx"></canvas>
+<canvas id="confetti"></canvas>
+<div id="spotlight"></div>
+<div id="cursor"></div>
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 08</div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 : HERO -->
+  <section class="slide bg-cherry" id="s1">
+    <div class="slide-inner">
+      <p class="eyebrow">Проєкт №9 · Історія України</p>
+      <h1 class="kinetic">
+        <span class="word"><span>«Енеїда»</span></span><br>
+        <span class="word"><span class="grad">Івана</span></span><span class="word"><span class="grad">Котляревського</span></span>
+      </h1>
+      <p class="subtitle reveal">Сміх, що створив сучасну українську літературу</p>
+      <p class="meta reveal">Виконав: учень 9-А класу Гавриляк Дмитро</p>
+    </div>
+    <div class="scrollcue" id="scrollcue"><div class="arrow">›</div> Далі</div>
+  </section>
+
+  <!-- 2 : AUTHOR -->
+  <section class="slide bg-cream" id="s2">
+    <div class="slide-inner author-wrap">
+      <div>
+        <div class="medallion">
+          <svg viewBox="0 0 160 160"><circle class="track" cx="80" cy="80" r="70"/><circle class="prog" cx="80" cy="80" r="70"/></svg>
+          <div class="core"></div>
+        </div>
+        <div class="author-dates"><span class="odo" data-target="1769"></span> — <span class="odo" data-target="1838"></span></div>
+        <div style="color:var(--muted);font-style:italic;">м. Полтава</div>
+      </div>
+      <div>
+        <p class="eyebrow on-cream">Автор</p>
+        <h2 class="reveal" style="font-size:2.5rem;margin:0;">Іван Котляревський</h2>
+        <ul class="fact-list">
+          <li>Письменник, драматург, культурний діяч — уродженець Полтави.</li>
+          <li>Служив, добре знав побут, звичаї та мову простих людей і козацтва.</li>
+          <li>Розпочав роботу над «Енеїдою» приблизно 1794 року, а завершив шосту частину 1822-го.</li>
+          <li>Перші три частини надрукували 1798 року без відома і згоди автора.</li>
+          <li>Працював також над п'єсами «Наталка Полтавка» та «Москаль-чарівник».</li>
+          <li>Вважається основоположником нової української літератури.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 : WHAT IS ENEIDA -->
+  <section class="slide bg-cream" id="s3">
+    <div class="slide-inner">
+      <p class="eyebrow on-cream">Що це за твір</p>
+      <h2 class="reveal" style="font-size:2.3rem;margin:0 0 .3rem 0;">Що таке «Енеїда»?</h2>
+      <div class="feature-pair">
+        <div class="tilt-card">
+          <h3>Бурлескно-травестійна поема</h3>
+          <p>Жартівливе, «знижене» переосмислення класичного сюжету — серйозне подано смішно, високе — буденно.</p>
+        </div>
+        <div class="tilt-card">
+          <div class="count odo" data-target="1798"></div>
+          <p>Рік виходу перших трьох частин — без відома і згоди самого автора.</p>
+        </div>
+      </div>
+      <div class="plot-box">
+        Пародія на «Енеїду» Вергілія: <b>троянці на чолі з Енеєм</b> тікають з полум'я рідного міста й шукають нову землю. Але герої — це переодягнені українські козаки: їдять галушки, п'ють горілку, гуляють і воюють зовсім «по-нашому».
+        <br><br>Їхня подорож проходить через Карфаген, Сицилію, пекло та землі царя Латина. Еней зустрічає Дідону, спускається до підземного світу, а наприкінці вступає в поєдинок із Турном.
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 : LANGUAGE (full comparison) -->
+  <section class="slide bg-cream" id="s4">
+    <div class="slide-inner">
+      <p class="eyebrow on-cream">Головна революція</p>
+      <h2 class="reveal" style="font-size:2.3rem;margin:0;">Мова твору</h2>
+      <div class="lang-split">
+        <div class="lang-col old">
+          <h3>До «Енеїди»</h3>
+          <ul>
+            <li>Книжна, «висока» мова, близька до церковнослов'янської</li>
+            <li>Література орієнтована на освічену еліту</li>
+            <li>Народна мова вважалася «непридатною» для серйозних творів</li>
+          </ul>
+        </div>
+        <div class="lang-col new">
+          <h3>«Енеїда»</h3>
+          <ul>
+            <li>Уперше написана живою, розмовною українською мовою народу</li>
+            <li>Показала: народна мова здатна передати будь-який зміст і почуття</li>
+            <li>Заклала основу літературної мови для наступних поколінь</li>
+            <li>Поєднала розмовну лексику, прислів'я, приказки, фразеологізми та назви українських страв і одягу</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 : HUMOR + COSSACK (full info together, no tabs) -->
+  <section class="slide bg-navy" id="s5">
+    <div class="slide-inner">
+      <p class="eyebrow" style="color:var(--gold);">Стиль і дух твору</p>
+      <h2 class="reveal" style="font-size:2.3rem;margin:0;color:var(--cream);">Сміх і козацький характер</h2>
+      <div class="spirit-grid">
+        <div class="spirit-col">
+          <h3>Сатира та гумор</h3>
+          <div class="humor-grid">
+            <div class="humor-card"><h4>Сатира на суспільство</h4><p>Висміяно хабарництво, лінощі панства, лицемірство чиновників і духовенства.</p></div>
+            <div class="humor-card"><h4>Живі персонажі</h4><p>Боги й герої говорять і діють як звичайні люди — впізнавані, кумедні, «свої».</p></div>
+            <div class="humor-card" style="grid-column:1/-1;"><h4>Народний гумор</h4><p>Прислів'я, жарти, побутові деталі — сміх зрозумілий кожному читачеві.</p></div>
+          </div>
+        </div>
+        <div class="spirit-col">
+          <h3>Побут і звичаї</h3>
+          <p style="color:#C9CEE8; font-size:.92rem; line-height:1.55; margin:0 0 1.1rem 0;">Крізь пародійний сюжет Котляревський детально й з любов'ю змальовує реальне життя українців XVIII століття.</p>
+          <div class="chip-row">
+            <span class="chip">Побут і звичаї</span>
+            <span class="chip">Українська кухня</span>
+            <span class="chip">Козацька звитяга</span>
+            <span class="chip">Народні обряди</span>
+            <span class="chip">Гумор і жарти</span>
+          </div>
+          <p class="quote-strip">Твір фактично став літературним «портретом нації».</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 : CHARACTERS -->
+  <section class="slide bg-navy" id="s6">
+    <div class="slide-inner">
+      <p class="eyebrow" style="color:var(--gold);">Персонажі та символи</p>
+      <h2 class="reveal" style="font-size:2.3rem;margin:0;color:var(--cream);">Хто ховається за героями?</h2>
+      <div class="feature-pair">
+        <div class="tilt-card">
+          <h3>Еней — ватажок козаків</h3>
+          <p>Він не ідеальний герой, а живий отаман: сміливий, винахідливий, веселий і здатний вести своїх людей крізь випробування.</p>
+        </div>
+        <div class="tilt-card">
+          <h3>Боги — дзеркало суспільства</h3>
+          <p>Юпітер, Венера, Юнона та інші боги поводяться як люди зі своїми сварками, образами, інтересами й слабкостями. Через них автор жартома показує панство та чиновників.</p>
+        </div>
+      </div>
+      <div class="plot-box">
+        <b>Головний символ:</b> мандри троянців — це шлях українського народу до власного дому, свободи та права зберігати свою мову й культуру. Саме тому комічна поема має глибокий національний зміст.
+        <br><br><b>Цікаво:</b> поема написана чотиристопним ямбом і містить величезний словник народної мови: назви страв, одягу, зброї, обрядів, розваг і побутових речей.
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 : SIGNIFICANCE -->
+  <section class="slide bg-cherry" id="s7">
+    <div class="slide-inner">
+      <p class="eyebrow">Значення</p>
+      <h2 class="reveal" style="font-size:2.3rem;margin:0;color:var(--cream);">Чому це важливо для культури</h2>
+      <div class="sig-flow" id="sigFlow">
+        <div class="sig-item"><div class="sig-line"></div><div class="sig-num">1</div><h3>Перший твір нової літератури</h3><p>Започаткував історію сучасної української літератури живою мовою та став її культурним символом.</p></div>
+        <div class="sig-item"><div class="sig-line"></div><div class="sig-num">2</div><h3>Довів гідність мови</h3><p>Показав, що народна мова годиться для великого мистецтва.</p></div>
+        <div class="sig-item"><div class="sig-line"></div><div class="sig-num">3</div><h3>Надихнув наступників</h3><p>Проклав шлях Шевченку, Квітці-Основ'яненку та іншим класикам XIX століття.</p></div>
+        <div class="sig-item" style="padding-right:0;"><div class="sig-num">4</div><h3>Живе в мистецтві</h3><p>За мотивами поеми створювали опери, вистави, мультфільми та ілюстрації.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 : CONCLUSION -->
+  <section class="slide bg-cream" id="s8">
+    <div class="slide-inner">
+      <p class="eyebrow on-cream">Висновок</p>
+      <p class="pullquote reveal">«Енеїда» — весела пародія, за якою ховається <span class="accent">серйозна ідея</span>: народ довів право говорити і творити власною мовою.</p>
+      <div class="conclusion-notes">
+        <div class="reveal">Через сміх і народну мову Котляревський подарував українцям першу справжню літературу «своєю» мовою.</div>
+        <div class="reveal">Тема легко «захищається»: короткий сюжет, зрозумілий гумор, чіткий історичний висновок. Факти звірено за матеріалами української Вікіпедії та електронними бібліотечними джерелами.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 : THANKS (uncounted) -->
+  <section class="slide bg-navy" id="s9">
+    <div class="slide-inner" style="text-align:center;align-items:center;">
+      <h1>Дякую за увагу!</h1>
+      <p class="thanks-sub">«Енеїда» Івана Котляревського · Проєкт з історії України</p>
+      <div class="author-badge">Виконав: учень 9-А класу Гавриляк Дмитро</div>
+    </div>
+  </section>
+
+</div>
+
+<button class="navbtn" id="prevBtn" aria-label="Попередній слайд">‹</button>
+<button class="navbtn" id="nextBtn" aria-label="Наступний слайд">›</button>
+<div class="dots" id="dots"></div>
+
+<script type="application/disabled">
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  const counted = total - 1; // thanks slide uncounted in the label
+  let current = 0;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- custom cursor ---- */
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+  document.querySelectorAll('button, .chip, .dot').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('grow'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('grow'));
+  });
+
+  /* ---- ambient particle canvas ---- */
+  const canvas = document.getElementById('fx');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  function makeParticle(){
+    return { x: Math.random()*W, y: H + Math.random()*40, r: 1 + Math.random()*2.2,
+      vy: .25 + Math.random()*.5, vx: (Math.random()-.5)*.25, a: .25 + Math.random()*.5 };
+  }
+  for (let i=0;i<50;i++){ const p = makeParticle(); p.y = Math.random()*H; particles.push(p); }
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p => {
+      p.y -= p.vy; p.x += p.vx;
+      if (p.y < -10) Object.assign(p, makeParticle());
+      ctx.beginPath();
+      const g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);
+      g.addColorStop(0, `rgba(228,196,120,${p.a})`);
+      g.addColorStop(1, 'rgba(228,196,120,0)');
+      ctx.fillStyle = g;
+      ctx.arc(p.x,p.y,p.r*4,0,Math.PI*2);
+      ctx.fill();
+    });
+    if (!reduced) requestAnimationFrame(tick);
+  }
+  tick();
+
+  /* ---- tilt effect ---- */
+  document.querySelectorAll('.tilt-card, .humor-card').forEach(el => {
+    el.addEventListener('mousemove', e => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left)/r.width - .5;
+      const y = (e.clientY - r.top)/r.height - .5;
+      el.style.transform = `rotateY(${x*8}deg) rotateX(${-y*8}deg) translateZ(6px)`;
+    });
+    el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+  });
+
+  /* ---- odometer: spinning digits like a mechanical counter ---- */
+  function buildOdometer(el){
+    const target = String(el.dataset.target);
+    const cycles = 3;
+    el.innerHTML = '';
+    [...target].forEach(chStr => {
+      const digit = parseInt(chStr, 10);
+      const box = document.createElement('span');
+      box.className = 'odo-digit';
+      const strip = document.createElement('span');
+      strip.className = 'odo-strip';
+      const totalSteps = cycles * 10 + digit;
+      let html = '';
+      for (let i = 0; i <= totalSteps; i++) html += `<span class="odo-num">${i % 10}</span>`;
+      strip.innerHTML = html;
+      box.appendChild(strip);
+      el.appendChild(box);
+    });
+  }
+  function spinOdometer(el){
+    el.querySelectorAll('.odo-strip').forEach((strip, idx) => {
+      const steps = strip.children.length;
+      strip.style.transition = 'none';
+      strip.style.transform = 'translateY(0)';
+      void strip.offsetWidth;
+      strip.style.transition = `transform 1.35s cubic-bezier(.22,.9,.28,1) ${idx*0.07}s`;
+      strip.style.transform = `translateY(-${steps-1}em)`;
+    });
+  }
+  document.querySelectorAll('.odo[data-target]').forEach(buildOdometer);
+
+  /* ---- significance timeline stagger ---- */
+  function playSig(){
+    document.querySelectorAll('#sigFlow .sig-item').forEach((el,i) => {
+      el.classList.remove('in');
+      setTimeout(() => el.classList.add('in'), 160*i);
+    });
+  }
+
+  function onEnter(id){
+    if (id === 's2') document.querySelectorAll('#s2 .odo').forEach(spinOdometer);
+    if (id === 's3') { const c = document.querySelector('#s3 .count.odo'); if (c) spinOdometer(c); }
+    if (id === 's6') playSig();
+    if (id === 's8') burstConfetti();
+  }
+
+  /* ---- deck navigation ---- */
+  const dotsEl = document.getElementById('dots');
+  for (let i=0;i<counted;i++){
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  }
+  const dots = Array.from(dotsEl.children);
+  const progress = document.getElementById('progress');
+  const counter = document.getElementById('counter');
+  function pad(n){ return n<10 ? '0'+n : ''+n; }
+
+  function goTo(index){
+    if (index === current) return;
+    if (index < 0 || index >= total) return;
+    const curEl = slides[current], nxtEl = slides[index];
+
+    curEl.classList.remove('active');
+    nxtEl.classList.add('active');
+    current = index;
+
+    if (index < counted){
+      dots.forEach((d,i) => d.classList.toggle('active', i===current));
+      progress.style.width = ((current+1)/counted*100) + '%';
+      counter.textContent = pad(current+1) + ' / ' + pad(counted);
+    } else {
+      progress.style.width = '100%';
+      counter.textContent = '';
+    }
+    setTimeout(() => onEnter(nxtEl.id), 250);
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', () => goTo(current-1));
+  document.getElementById('nextBtn').addEventListener('click', () => goTo(current+1));
+  document.getElementById('scrollcue').addEventListener('click', () => goTo(current+1));
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)) { e.preventDefault(); goTo(current+1); }
+    if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) { e.preventDefault(); goTo(current-1); }
+  });
+
+  document.getElementById('deck').addEventListener('click', e => {
+    if (e.target.closest('.navbtn,.dot,.chip,#scrollcue')) return;
+    const x = e.clientX / window.innerWidth;
+    if (x > .8) goTo(current+1);
+    else if (x < .2) goTo(current-1);
+  });
+
+  let touchX = null;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) { dx < 0 ? goTo(current+1) : goTo(current-1); }
+    touchX = null;
+  });
+
+  /* ---- wow: cursor spotlight ---- */
+  document.addEventListener('mousemove', e => {
+    document.documentElement.style.setProperty('--mx', e.clientX + 'px');
+    document.documentElement.style.setProperty('--my', e.clientY + 'px');
+  });
+
+  /* ---- wow: subtle parallax tilt of active slide content ---- */
+  document.getElementById('deck').addEventListener('mousemove', e => {
+    const active = document.querySelector('.slide.active .slide-inner');
+    if (!active) return;
+    const x = (e.clientX / window.innerWidth - .5) * 2;
+    const y = (e.clientY / window.innerHeight - .5) * 2;
+    active.style.transform = `rotateY(${x*1.6}deg) rotateX(${-y*1.6}deg)`;
+  });
+
+  /* ---- wow: confetti burst for the final thank-you slide ---- */
+  const confettiCanvas = document.getElementById('confetti');
+  const cctx = confettiCanvas.getContext('2d');
+  function resizeConfetti(){ confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; }
+  resizeConfetti(); window.addEventListener('resize', resizeConfetti);
+  function burstConfetti(){
+    if (reduced) return;
+    const colors = ['#D4A445', '#E8C87A', '#FBF3EA', '#C21B31'];
+    const parts = [];
+    for (let i=0;i<160;i++){
+      parts.push({
+        x: Math.random()*confettiCanvas.width, y: -20 - Math.random()*220,
+        w: 5+Math.random()*6, h: 9+Math.random()*7,
+        vy: 2.2+Math.random()*3, vx: (Math.random()-.5)*2.4,
+        rot: Math.random()*360, vr: (Math.random()-.5)*12,
+        color: colors[Math.floor(Math.random()*colors.length)], life: 0
+      });
+    }
+    const t0 = performance.now();
+    (function frame(t){
+      cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+      let alive = false;
+      parts.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life++;
+        if (p.y < confettiCanvas.height + 30) alive = true;
+        cctx.save();
+        cctx.translate(p.x, p.y);
+        cctx.rotate(p.rot*Math.PI/180);
+        cctx.fillStyle = p.color;
+        cctx.globalAlpha = Math.max(0, 1 - p.life/280);
+        cctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        cctx.restore();
+      });
+      if (alive && t - t0 < 5200) requestAnimationFrame(frame);
+      else cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+    })(t0);
+  }
+
+  /* ---- init ---- */
+  slides[0].classList.add('active');
+  progress.style.width = (1/counted*100) + '%';
+  counter.textContent = pad(1) + ' / ' + pad(counted);
+})();
+</script>
+<script src="script.js"></script>
+</body>
+</html>
