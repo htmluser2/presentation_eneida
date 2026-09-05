@@ -86,6 +86,7 @@
   const newPane = document.getElementById('newPane');
   const handle = document.getElementById('handle');
   let dragging = false;
+  let didDrag = false;
   function setSplit(clientX){
     const rect = compare.getBoundingClientRect();
     let percent = ((clientX - rect.left) / rect.width) * 100;
@@ -94,12 +95,32 @@
     handle.style.left = percent + '%';
   }
   if (compare){
-    compare.addEventListener('mousedown', e => { dragging = true; setSplit(e.clientX); });
-    window.addEventListener('mousemove', e => { if (dragging) setSplit(e.clientX); });
-    window.addEventListener('mouseup', () => { dragging = false; });
-    compare.addEventListener('touchstart', e => { dragging = true; setSplit(e.touches[0].clientX); }, {passive:true});
-    compare.addEventListener('touchmove', e => { if (dragging) setSplit(e.touches[0].clientX); }, {passive:true});
-    compare.addEventListener('touchend', () => { dragging = false; });
+    compare.addEventListener('pointerdown', e => {
+      dragging = true;
+      didDrag = false;
+      compare.setPointerCapture(e.pointerId);
+      setSplit(e.clientX);
+      e.stopPropagation();
+    });
+    compare.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      didDrag = true;
+      setSplit(e.clientX);
+      e.stopPropagation();
+    });
+    compare.addEventListener('pointerup', e => {
+      dragging = false;
+      if (compare.hasPointerCapture(e.pointerId)) compare.releasePointerCapture(e.pointerId);
+      e.stopPropagation();
+    });
+    compare.addEventListener('pointercancel', () => { dragging = false; });
+    compare.addEventListener('click', e => {
+      e.stopPropagation();
+      if (didDrag) {
+        e.preventDefault();
+        didDrag = false;
+      }
+    });
   }
 
   function playSig(){
@@ -153,7 +174,7 @@
     if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) { e.preventDefault(); goTo(current-1); }
   });
   document.getElementById('deck').addEventListener('click', e => {
-    if (e.target.closest('.navbtn,.dot,.chip,#scrollcue')) return;
+    if (e.target.closest('.navbtn,.dot,.chip,#scrollcue,.compare')) return;
     const x = e.clientX / window.innerWidth;
     if (x > .8) goTo(current+1); else if (x < .2) goTo(current-1);
   });
